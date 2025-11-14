@@ -133,6 +133,8 @@ Anxiety = \beta_0 + \beta_1 \times Stress + \beta_2 \times Time + \epsilon
 </li>
 <li><span class="math inline">\(\beta_2 = 0.1\)</span> (coefficient on Time is 0.1)</li>
 </ul>
+</div>
+</div>
 <section id="data-and-proxy-diagnostics" class="level2">
 <h2 class="anchored" data-anchor-id="data-and-proxy-diagnostics">Data and Proxy Diagnostics</h2>
 <div class="cell" data-execution_count="2">
@@ -142,7 +144,7 @@ Anxiety = \beta_0 + \beta_1 \times Stress + \beta_2 \times Time + \epsilon
 Table&nbsp;1: Observed data with known true relationships
 </figcaption>
 <div aria-describedby="tbl-observations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="32">
 <div>
 
 
@@ -610,8 +612,6 @@ Figure&nbsp;6: Residual diagnostics: full proxy model vs subset model
 <p><strong>Takeaway:</strong> This subset analysis demonstrates that stratifying the sample by relevant characteristics (in this case, stress severity) and examining residual patterns can reveal violations of regression assumptions that are obscured in the full sample. Rather than applying regression models to the entire dataset without validation, researchers should evaluate whether relationships are consistent across different data regimes and assess whether measurement limitations vary across the range of observed values. This approach helps identify when proxy variables can be reliably used for causal inference and when they introduce systematic bias that undermines substantive interpretation.</p>
 </section>
 </section>
-</div>
-</div>
 </section>
 
 </main>

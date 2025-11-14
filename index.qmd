@@ -45,6 +45,8 @@ $$
 - $\beta_1 = 1$ (coefficient on Stress is 1)  
 - $\beta_2 = 0.1$ (coefficient on Time is 0.1)
 
+:::
+
 ## Data and Proxy Diagnostics
 
 ```{python}
