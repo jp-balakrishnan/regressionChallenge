@@ -12,6 +12,39 @@ execute:
 
 This analysis examines the implications of using monotonic proxy variables as substitutes for true causal variables in linear regression models. Through a controlled stress–anxiety scenario, we demonstrate how seemingly reasonable proxy variables can systematically bias regression estimates despite maintaining strong statistical fit. The following sections present regression analyses, visualizations, and interpretations that address each component of the challenge requirements.
 
+$$
+\begin{aligned}
+A &\equiv \textrm{Anxiety Level measured by fMRI activity}\\
+S &\equiv \textrm{Stress Level measured by cortisol level in blood}\\
+T &\equiv \textrm{\# of minutes on social media in last 24 hours}
+\end{aligned}
+$$
+
+Let's assume we **know** the relationship among these variables is as follows:
+
+$$\widehat{Anxiety} = StressSurvey + 0.100 \times Time,$$
+
+::: {.callout-important}
+## 🔍 Understanding the True Relationship: Implied Coefficients
+
+**Critical Point:** Students often miss that this specific equation implies specific coefficient values in the generic multiple regression framework.
+
+**The Generic Multiple Regression Equation:**
+$$
+Y = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \epsilon
+$$
+
+**In Our Case:**
+$$
+Anxiety = \beta_0 + \beta_1 \times Stress + \beta_2 \times Time + \epsilon
+$$
+
+**The True Coefficients (what we "know"):**
+
+- $\beta_0 = 0$ (intercept is zero)
+- $\beta_1 = 1$ (coefficient on Stress is 1)  
+- $\beta_2 = 0.1$ (coefficient on Time is 0.1)
+
 ## Data and Proxy Diagnostics
 
 ```{python}
@@ -114,6 +147,7 @@ plt.show()
 
 ### Question 1: Bivariate Regression with StressSurvey
 
+Run a bivariate regression of Anxiety on StressSurvey. What are the estimated coefficients? How do they compare to the true relationship?
 ```{python}
 #| label: reg1-stresssurvey
 print("=" * 70)
@@ -131,6 +165,7 @@ This model indicates that anxiety begins at −1.524 units when the survey repor
 
 ### Question 2: Visualization of Bivariate Relationship – StressSurvey
 
+Create a scatter plot with the regression line showing the relationship between StressSurvey and Anxiety. Comment on the fit and any potential issues.
 ```{python}
 #| label: fig-stresssurvey-anxiety
 #| fig-cap: "StressSurvey vs Anxiety with fitted line"
@@ -157,10 +192,16 @@ plt.tight_layout()
 plt.show()
 ```
 
-The scatter plot displays Anxiety (dependent variable on the vertical axis) as a function of StressSurvey responses (independent variable on the horizontal axis). The data exhibit a stepped pattern: for each true stress level, the survey instrument records three distinct anxiety observations. The transition from survey score 9 to 12 demonstrates a more pronounced increase compared to earlier transitions, indicating non-linear scaling between the proxy measure and true stress. The fitted regression line averages across these stepped observations, resulting in systematic over-prediction for low-stress observations and under-prediction for high-stress observations. This visualization demonstrates the geometric manifestation of non-linearity: although the proxy variable maintains a monotonic relationship with true stress, the deviation from linearity systematically biases the estimated slope coefficient, even when this bias is not immediately apparent from summary statistics.
+The scatter plot displays Anxiety as a function of StressSurvey responses. 
+* The data exhibit a stepped pattern: for each true stress level, the survey instrument records three distinct anxiety observations. 
+* The transition from survey score 9 to 12 demonstrates a more pronounced increase compared to earlier transitions, indicating **non-linear** scaling between the proxy measure and true stress. 
+* The fitted regression line averages across these stepped observations, resulting in systematic over-prediction for low-stress observations and under-prediction for high-stress observations. 
+* The high R-squared gives false confidence. The model appears perfect, but it’s estimating the wrong relationship because it’s missing a key variable.
+* This visualization demonstrates the geometric manifestation of non-linearity: although the proxy variable maintains a monotonic relationship with true stress, the deviation from linearity systematically biases the estimated slope coefficient, even when this bias is not immediately apparent from summary statistics.
 
 ### Question 3: Bivariate Regression with Time
 
+Run a bivariate regression of Anxiety on Time. What are the estimated coefficients? How do they compare to the true relationship?
 ```{python}
 #| label: reg3-time
 print("=" * 70)
@@ -174,10 +215,14 @@ Regressing Anxiety on Time produces the following model:
 
 $$\widehat{Anxiety} = -3.680 + 5.341 \times Time,$$
 
-with $R^2 = 0.563$. Under this specification, the intercept suggests −3.68 anxiety units at zero social media use, which is conceptually implausible, and the slope coefficient of 5.341 indicates that each additional hour of social media use is associated with a 5.34-unit increase in anxiety. This estimate substantially exceeds the true marginal effect of 0.1 units per hour that was specified in the data-generating process. The discrepancy arises from omitted-variable bias: because Stress is excluded from this bivariate regression, the model attributes all stress-induced variation in anxiety to the Time variable. This results in a coefficient estimate that is approximately 53 times larger than the true causal effect, demonstrating how confounding variables can dramatically distort regression coefficients even when the omitted variable is conceptually distinct from the included regressor.
+with $R^2 = 0.563$. Under this specification, the intercept suggests −3.68 anxiety units at zero social media use, which is conceptually implausible, and the slope coefficient of 5.341 indicates that each additional hour of social media use is associated with a 5.34-unit increase in anxiety. 
+* This estimate substantially exceeds the true marginal effect of 0.1 units per hour that was specified in the data-generating process. 
+* The discrepancy arises from **omitted-variable bias**: because Stress is excluded from this bivariate regression, the model attributes all stress-induced variation in anxiety to the Time variable. 
+* This results in a coefficient estimate that is approximately **53 times larger** than the true causal effect, demonstrating how confounding variables can dramatically distort regression coefficients even when the omitted variable is conceptually distinct from the included regressor.
 
 ### Question 4: Visualization of Bivariate Relationship – Time
 
+Create a scatter plot with the regression line showing the relationship between Time and Anxiety. Comment on the fit and any potential issues.
 ```{python}
 #| label: fig-time-anxiety
 #| fig-cap: "Time vs Anxiety with fitted line"
@@ -204,10 +249,16 @@ plt.tight_layout()
 plt.show()
 ```
 
-The scatter plot displays Time on social media (independent variable on the horizontal axis) versus Anxiety (dependent variable on the vertical axis). The data points form vertical clusters rather than a consistent upward trajectory, indicating substantial variation in anxiety levels even when social media use remains constant. This vertical dispersion reflects the influence of unobserved heterogeneity—specifically, differences in true stress levels among individuals with similar social media use. The regression model, which does not account for stress variation, fits a steep positive slope through these clusters, attributing all observed variation in anxiety to social media use. This visualization illustrates why the Time coefficient is inflated: the model attempts to explain vertical variation (driven by stress differences) using only horizontal variation (time spent on social media), leading to systematic overestimation of the social media effect.
+The scatter plot displays Time on social media versus Anxiety. 
+
+* The data points form vertical clusters rather than a consistent upward trajectory, indicating substantial variation in anxiety levels even when social media use remains constant. 
+* This vertical dispersion reflects the influence of unobserved heterogeneity—specifically, differences in true stress levels among individuals with similar social media use.
+* The regression model, which does not account for stress variation, fits a steep positive slope through these clusters, attributing all observed variation in anxiety to social media use. 
+* This visualization illustrates why the Time coefficient is inflated: the model attempts to explain vertical variation (driven by stress differences) using only horizontal variation (time spent on social media), leading to systematic overestimation of the social media effect.
 
 ### Question 5: Multiple Regression with StressSurvey and Time
 
+Run a multiple regression of Anxiety on both **StressSurvey** and Time. What are the estimated coefficients? How do they compare to the true relationship?
 ```{python}
 #| label: reg5-multiple-stresssurvey
 print("=" * 70)
@@ -221,10 +272,16 @@ The multiple regression model including both StressSurvey and Time yields:
 
 $$\widehat{Anxiety} = 0.589 + 1.427 \times StressSurvey - 2.780 \times Time,$$
 
-with $R^2 = 0.935$. A naive interpretation would suggest that each additional unit on the stress survey scale is associated with a 1.427-unit increase in anxiety, while each additional hour of social media use is associated with a 2.780-unit *decrease* in anxiety. Both coefficients are statistically significant, yet both estimates are substantially biased. The non-linear relationship between the StressSurvey proxy and true stress causes the regression model to compensate by inflating the StressSurvey coefficient and reversing the sign of the Time coefficient. This demonstrates a critical problem: a regression model can exhibit strong statistical fit (high $R^2$) and statistically significant coefficients while producing estimates that are qualitatively incorrect. The model provides a confident but misleading representation of the true causal relationships.
+with $R^2 = 0.935$. A naive interpretation would suggest that each additional unit on the stress survey scale is associated with a 1.427-unit increase in anxiety, while each additional hour of social media use is associated with a 2.780-unit *decrease* in anxiety. 
+
+* Both coefficients are statistically significant, yet both estimates are substantially biased. 
+* The **non-linear** relationship between the StressSurvey proxy and true stress causes the regression model to compensate by inflating the StressSurvey coefficient and reversing the sign of the Time coefficient. 
+* This demonstrates a critical problem: a regression model can exhibit **strong statistical fit** (high $R^2$) and statistically significant coefficients while producing estimates that are **qualitatively incorrect**. 
+* The model provides a confident but **misleading** representation of the true causal relationships.
 
 ### Question 6: Multiple Regression with True Stress and Time
 
+Run a multiple regression of Anxiety on both **Stress** and Time. What are the estimated coefficients? How do they compare to the true relationship?
 ```{python}
 #| label: reg6-multiple-stress
 print("=" * 70)
@@ -238,10 +295,18 @@ When the true Stress variable is substituted for the StressSurvey proxy, the reg
 
 $$\widehat{Anxiety} = 0.000 + 1.000 \times Stress + 0.100 \times Time,$$
 
-with $R^2 = 1.000$. This specification yields an intercept of exactly zero, indicating no anxiety when both stress and social media use are zero, which aligns with the data-generating process. The Stress coefficient is exactly 1.000, indicating a one-to-one relationship between stress units and anxiety units, and the Time coefficient is exactly 0.100, indicating that each additional hour of social media use increases anxiety by 0.1 units. A perfect $R^2$ of 1.000 indicates that the regression line passes through all observed data points, leaving no residual variation. The only change between this model and the previous specification is the substitution of the true stress measurement for the proxy variable. This single modification demonstrates that the quality of variable measurement is fundamental to regression validity: even with identical sample size, model specification, and estimation technique, the use of a linear proxy variable produces substantially biased estimates, while the true variable yields accurate parameter estimates.
+with $R^2 = 1.000$. Perfect $R^2$ means the line passes through every observed point, so there is **no residual variation**.
+
+* This specification yields an intercept of exactly zero, indicating **no anxiety** when both stress and social media use are zero, which aligns with the data-generating process. 
+* The Stress coefficient is exactly 1.000, indicating a **one-to-one relationship** between stress units and anxiety units. 
+* The Time coefficient is exactly 0.100, indicating that each additional hour of social media use increases anxiety by **0.1 units**. 
+* A perfect $R^2$ of 1.000 indicates that the regression line passes through all observed data points, leaving **no residual variation**. 
+* The only change between this model and the previous specification is the substitution of the **true stress measurement** for the proxy variable. 
+* This single modification demonstrates that the quality of variable measurement is fundamental to regression validity: even with identical sample size, model specification, and estimation technique, the use of a linear proxy variable produces substantially biased estimates, while the true variable yields **accurate parameter estimates**.
 
 ### Question 7: Model Comparison
 
+Compare the R-squared values and coefficient interpretations between the two multiple regression models. Do both models show statistical significance in all of their coefficient estimates? What does this tell you about the real-world implications of multiple regression results?
 ```{python}
 #| label: reg7-comparison
 print("=" * 70)
@@ -396,6 +461,7 @@ print(summary_df.to_markdown(index=False))
 **Coefficient Accuracy vs. Fit:** This summary table demonstrates a critical distinction between statistical fit and parameter accuracy. The proxy-based multiple regression achieves the second-highest $R^2$ among all models (0.935) yet produces the most substantially biased coefficient estimates. Even the subset model, which achieves perfect fit ($R^2 = 1.000$), reports a StressSurvey coefficient of 0.333. This value appears consistent with the true relationship only because, within the restricted range of the subset (StressSurvey ≤ 6), the survey scale maintains an exact three-to-one ratio with the true stress scale. This observation illustrates an important principle for regression analysis: researchers should prioritize the substantive interpretation of coefficient estimates over goodness-of-fit statistics. A model with strong fit but biased coefficients may provide misleading substantive conclusions, whereas evaluating coefficients in the context of theoretical expectations and measurement quality is essential for valid inference.
 
 ### Question 8: Real-World Implications
+For each of the two multiple regression models, assume their respective outputs/conclusions were published in academic journals and then subsequently picked up by the popular press.  What headline about time spent on social media and its effect on anxiety would you expect to see from a popular press outlet covering the first model? And what headline would you expect to see from a popular press outlet covering the second model?  Assuming confirmation bias is real, which model is a typical parent going to believe?  Which model will Facebook, Instagram, and TikTok executives prefer?
 
 **Model 1 (StressSurvey + Time) – Headline:** *"New Regression Finds Every Extra Hour of Social Media Cuts Anxiety by 2.8 Points."*  
 A media outlet reporting on the proxy-based regression would likely focus on the negative Time coefficient (-2.78), the extremely small p-value, and the strong $R^2$ (0.935), interpreting these as evidence that social media use reduces anxiety when stress is "controlled for." However, this interpretation overlooks a critical methodological detail: the stress control variable is a proxy measure with a non-linear relationship to true stress. Without understanding this measurement limitation, the reporting would suggest that increased social media use is associated with reduced anxiety, which contradicts the true causal relationship.
@@ -406,6 +472,7 @@ When the true stress measurement is used, the Time coefficient becomes the expec
 These contrasting headlines demonstrate how measurement choices, rather than statistical significance tests, fundamentally shape public interpretation of research findings. Stakeholders with pre-existing concerns about social media (e.g., parents, mental health advocates) would likely emphasize findings from Model 2, while stakeholders with incentives to minimize concerns about social media (e.g., platform executives) would likely highlight findings from Model 1. Both models can be presented as valid, peer-reviewed research with strong statistical fit, despite the fact that only one model accurately reflects the true causal relationships. This scenario illustrates how measurement quality affects not only scientific validity but also public understanding and policy debates.
 
 ### Question 9: Subset Analysis and Graphical Diagnostics
+Reflect on this tip to avoid being misled by statistically significant results: splitting the sample into meaningful subsets ("statistical regimes"), and using graphical diagnostics for linearity rather than blind reliance on "canned" regressions. Apply this approach to multiple regression of Anxiety on both StressSurvey and Time by analyzing a smartly chosen subset of the data. What specific subset did you choose and why?  Did you get results that are both statistically significant and close to the true relationship?
 
 ```{python}
 #| label: reg9-subset
