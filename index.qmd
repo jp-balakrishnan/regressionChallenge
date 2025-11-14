@@ -10,7 +10,7 @@ execute:
 
 # Interrogating Linear Regression with Non-Linear Proxies
 
-Researchers often treat monotonic proxies as “close enough” to the causal variable. This walkthrough recreates a stress–anxiety scenario to show how that shortcut breaks regression interpretability. Each question below matches the challenge rubric, pairing code-generated evidence with plain-language interpretation.
+This analysis examines the implications of using monotonic proxy variables as substitutes for true causal variables in linear regression models. Through a controlled stress–anxiety scenario, we demonstrate how seemingly reasonable proxy variables can systematically bias regression estimates despite maintaining strong statistical fit. The following sections present regression analyses, visualizations, and interpretations that address each component of the challenge requirements.
 
 ## Data and Proxy Diagnostics
 
@@ -123,11 +123,11 @@ print(regression_markdown(model1))
 print(f"\nR-squared: {model1.rsquared:.3f}")
 ```
 
-The estimated regression line is
+The estimated regression equation is:
 
 $$\widehat{Anxiety} = -1.524 + 1.047 \times StressSurvey.$$
 
-For beginners, read this as: start at −1.524 when the survey reports zero stress, and then add about 1.05 anxiety points for every one-unit bump on the survey scale. The healthy part of the story is the $R^2$ of 0.901, which says the line hugs the data closely. The worrying part is that the survey tries to stand in for real cortisol, and it stretches more aggressively at higher stress levels. The regression compensates by pushing the slope above 1 and by dropping the intercept below zero. So the equation “fits” but quietly distorts the true cause-and-effect relationship.
+This model indicates that anxiety begins at −1.524 units when the survey reports zero stress, and increases by approximately 1.047 anxiety units for each one-unit increase in the survey response. The model demonstrates strong statistical fit with an $R^2$ of 0.901, indicating that the linear regression line closely approximates the observed data. However, this apparent success masks a fundamental problem: the survey instrument serves as a proxy for the true cortisol-based stress measurement, and the relationship between the proxy and true stress is non-linear, accelerating more rapidly at higher stress levels. To accommodate this non-linearity while maintaining linearity assumptions, the regression model adjusts the slope coefficient above the true value of 1.0 and shifts the intercept below zero. Consequently, while the model exhibits strong fit statistics, the estimated coefficients systematically deviate from the true causal parameters.
 
 ### Question 2: Visualization of Bivariate Relationship – StressSurvey
 
@@ -157,7 +157,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-The dots show Anxiety (vertical axis) for each survey response (horizontal axis). Notice the horizontal “steps”: the survey records three different anxiety outcomes for every real stress level. The final step from 9 to 12 shoots upward more sharply than earlier steps. The red line averages across those steps, so it floats above the low-stress points and sinks below the high-stress ones. This picture is the geometric version of the warning above—our proxy is monotonic, yet the violation of straight-line growth silently bends the fitted slope.
+The scatter plot displays Anxiety (dependent variable on the vertical axis) as a function of StressSurvey responses (independent variable on the horizontal axis). The data exhibit a stepped pattern: for each true stress level, the survey instrument records three distinct anxiety observations. The transition from survey score 9 to 12 demonstrates a more pronounced increase compared to earlier transitions, indicating non-linear scaling between the proxy measure and true stress. The fitted regression line averages across these stepped observations, resulting in systematic over-prediction for low-stress observations and under-prediction for high-stress observations. This visualization demonstrates the geometric manifestation of non-linearity: although the proxy variable maintains a monotonic relationship with true stress, the deviation from linearity systematically biases the estimated slope coefficient, even when this bias is not immediately apparent from summary statistics.
 
 ### Question 3: Bivariate Regression with Time
 
@@ -170,11 +170,11 @@ print(regression_markdown(model3))
 print(f"\nR-squared: {model3.rsquared:.3f}")
 ```
 
-Regressing Anxiety on Time produces
+Regressing Anxiety on Time produces the following model:
 
 $$\widehat{Anxiety} = -3.680 + 5.341 \times Time,$$
 
-with $R^2 = 0.563$. Interpreted literally, the model says “start at −3.68 anxiety points and add 5.34 points for each extra hour online.” That story is implausible (negative anxiety at zero time!) and it clashes with the true 0.1 coefficient we built into the data. The culprit is omitted-variable bias: Stress is missing from this regression, so the model stuffs stress-driven variation into the Time coefficient and inflates it more than fifty-fold.
+with $R^2 = 0.563$. Under this specification, the intercept suggests −3.68 anxiety units at zero social media use, which is conceptually implausible, and the slope coefficient of 5.341 indicates that each additional hour of social media use is associated with a 5.34-unit increase in anxiety. This estimate substantially exceeds the true marginal effect of 0.1 units per hour that was specified in the data-generating process. The discrepancy arises from omitted-variable bias: because Stress is excluded from this bivariate regression, the model attributes all stress-induced variation in anxiety to the Time variable. This results in a coefficient estimate that is approximately 53 times larger than the true causal effect, demonstrating how confounding variables can dramatically distort regression coefficients even when the omitted variable is conceptually distinct from the included regressor.
 
 ### Question 4: Visualization of Bivariate Relationship – Time
 
@@ -204,7 +204,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-Each dot still plots Time (horizontal) versus Anxiety (vertical), but the dots now form tall columns instead of a tidy upward march. That “vertical” pattern means anxiety differs wildly even when Time stays fixed—because those students are sitting at different stress levels. The regression line, oblivious to stress, leans steeply upward and claims social media is the hero or villain. Visually, you can see why the coefficient exaggerates the effect: the model chases vertical variation it cannot explain.
+The scatter plot displays Time on social media (independent variable on the horizontal axis) versus Anxiety (dependent variable on the vertical axis). The data points form vertical clusters rather than a consistent upward trajectory, indicating substantial variation in anxiety levels even when social media use remains constant. This vertical dispersion reflects the influence of unobserved heterogeneity—specifically, differences in true stress levels among individuals with similar social media use. The regression model, which does not account for stress variation, fits a steep positive slope through these clusters, attributing all observed variation in anxiety to social media use. This visualization illustrates why the Time coefficient is inflated: the model attempts to explain vertical variation (driven by stress differences) using only horizontal variation (time spent on social media), leading to systematic overestimation of the social media effect.
 
 ### Question 5: Multiple Regression with StressSurvey and Time
 
@@ -217,11 +217,11 @@ print(regression_markdown(model5))
 print(f"\nR-squared: {model5.rsquared:.3f}")
 ```
 
-The fitted model is
+The multiple regression model including both StressSurvey and Time yields:
 
 $$\widehat{Anxiety} = 0.589 + 1.427 \times StressSurvey - 2.780 \times Time,$$
 
-with $R^2 = 0.935$. If you read the output like a beginner, you might conclude: “Every extra survey point increases anxiety by 1.43, but every extra hour online *reduces* anxiety by 2.78.” Both coefficients look statistically convincing, yet both are wrong. The survey proxy is still curving away from the true stress measure, so the regression leans harder on StressSurvey and flips the Time sign to balance things out. We now have a high-$R^2$ model confidently proclaiming the opposite of the truth.
+with $R^2 = 0.935$. A naive interpretation would suggest that each additional unit on the stress survey scale is associated with a 1.427-unit increase in anxiety, while each additional hour of social media use is associated with a 2.780-unit *decrease* in anxiety. Both coefficients are statistically significant, yet both estimates are substantially biased. The non-linear relationship between the StressSurvey proxy and true stress causes the regression model to compensate by inflating the StressSurvey coefficient and reversing the sign of the Time coefficient. This demonstrates a critical problem: a regression model can exhibit strong statistical fit (high $R^2$) and statistically significant coefficients while producing estimates that are qualitatively incorrect. The model provides a confident but misleading representation of the true causal relationships.
 
 ### Question 6: Multiple Regression with True Stress and Time
 
@@ -234,11 +234,11 @@ print(regression_markdown(model6))
 print(f"\nR-squared: {model6.rsquared:.3f}")
 ```
 
-Substituting the actual stress measure lands exactly on the data-generating process:
+When the true Stress variable is substituted for the StressSurvey proxy, the regression model perfectly recovers the data-generating process:
 
 $$\widehat{Anxiety} = 0.000 + 1.000 \times Stress + 0.100 \times Time,$$
 
-with $R^2 = 1.000$. Now the intercept is exactly zero (no stress, no time, no anxiety), each stress point adds one full point of anxiety, and each hour online adds the modest 0.1 bump we engineered. Perfect $R^2$ simply means the line passes through every observed point. Nothing about the sample changed—only the quality of the stress measurement. That small swap instantly restores trustworthy coefficients and a sensible story.
+with $R^2 = 1.000$. This specification yields an intercept of exactly zero, indicating no anxiety when both stress and social media use are zero, which aligns with the data-generating process. The Stress coefficient is exactly 1.000, indicating a one-to-one relationship between stress units and anxiety units, and the Time coefficient is exactly 0.100, indicating that each additional hour of social media use increases anxiety by 0.1 units. A perfect $R^2$ of 1.000 indicates that the regression line passes through all observed data points, leaving no residual variation. The only change between this model and the previous specification is the substitution of the true stress measurement for the proxy variable. This single modification demonstrates that the quality of variable measurement is fundamental to regression validity: even with identical sample size, model specification, and estimation technique, the use of a linear proxy variable produces substantially biased estimates, while the true variable yields accurate parameter estimates.
 
 ### Question 7: Model Comparison
 
@@ -332,13 +332,13 @@ plt.tight_layout()
 plt.show()
 ```
 
-To read the comparison, first notice that each model produces a headline number for fit ($R^2$) and individual coefficients for Stress and Time. The charts echo the tables: bars closer to the green dashed lines tell the truth; bars that wander away are misleading.
+The comparison between models reveals both similarities and critical differences. Each model produces a goodness-of-fit measure ($R^2$) and individual coefficient estimates for Stress (or its proxy) and Time. The bar charts provide a visual representation of these comparisons: coefficient estimates that align closely with the green dashed reference lines (representing true parameter values) indicate accurate estimation, while estimates that deviate substantially from these reference values demonstrate the magnitude of bias.
 
-*R-squared:* Think of $R^2$ as the share of wiggle in Anxiety the model explains. The proxy model posts 0.935—almost indistinguishable from the perfect 1.000 of the true-stress model. If you judged models by this statistic alone, you would celebrate both.
+*R-squared:* The coefficient of determination ($R^2$) measures the proportion of variance in the dependent variable that the model explains. The proxy-based model achieves an $R^2$ of 0.935, which is nearly indistinguishable from the perfect fit ($R^2 = 1.000$) obtained by the true-stress model. If model selection were based solely on goodness-of-fit measures, both models would appear equally valid.
 
-*Coefficients:* The real action lives here. The proxy model claims each survey point adds 1.427 anxiety points (43% too high) and each extra hour online *reduces* anxiety by 2.780. The true-stress model lands exactly on the known values of 1.000 and +0.100. In other words, small coefficient errors in the bar chart translate into entirely different policy stories.
+*Coefficients:* The substantive interpretation of the models diverges dramatically at the coefficient level. The proxy model estimates that each additional unit on the stress survey scale is associated with a 1.427-unit increase in anxiety (representing a 43% overestimate relative to the true coefficient of 1.0), while each additional hour of social media use is associated with a 2.780-unit *decrease* in anxiety (a substantial departure from the true positive effect of +0.10). In contrast, the true-stress model produces coefficient estimates of exactly 1.000 and +0.100, perfectly matching the data-generating process. This comparison demonstrates that even small discrepancies in coefficient estimates can lead to fundamentally different substantive conclusions and policy implications.
 
-*Significance:* Both models report tiny p-values for every term. Statistical significance just says “this number is unlikely to be zero if the model were correct.” It does not guarantee the number is the *right* causal effect. That is why researchers must go beyond the asterisk column in regression tables.
+*Statistical Significance:* Both models report extremely small p-values for all coefficients, indicating that the null hypothesis of zero effect can be rejected at conventional significance levels. However, statistical significance only indicates that an estimated coefficient is unlikely to equal zero *if the model assumptions hold*. It does not guarantee that the estimated coefficient represents the true causal effect, nor does it validate the model specification or the quality of the included variables. This distinction is crucial: researchers must evaluate coefficient estimates not only for statistical significance but also for substantive validity, which requires careful consideration of measurement quality, model specification, and the theoretical relationship between variables.
 
 ```{python}
 #| label: tbl-model-summary
@@ -393,17 +393,17 @@ summary_df = pd.DataFrame(summary_rows).round({"Intercept": 3, "Stress/Proxy": 3
 print(summary_df.to_markdown(index=False))
 ```
 
-**Coefficient Accuracy vs. Fit:** The proxy-based multiple regression boasts the second-highest $R^2$ yet supplies the most misleading coefficients. Even the subset model with perfect fit reports a StressSurvey slope of 0.333, which is “right” only because the survey scale is exactly three times the stress scale in that limited range. This table is a cheat sheet for beginners: always look at the meaning of the coefficients first, then decide whether the fit statistic is telling a coherent story.
+**Coefficient Accuracy vs. Fit:** This summary table demonstrates a critical distinction between statistical fit and parameter accuracy. The proxy-based multiple regression achieves the second-highest $R^2$ among all models (0.935) yet produces the most substantially biased coefficient estimates. Even the subset model, which achieves perfect fit ($R^2 = 1.000$), reports a StressSurvey coefficient of 0.333. This value appears consistent with the true relationship only because, within the restricted range of the subset (StressSurvey ≤ 6), the survey scale maintains an exact three-to-one ratio with the true stress scale. This observation illustrates an important principle for regression analysis: researchers should prioritize the substantive interpretation of coefficient estimates over goodness-of-fit statistics. A model with strong fit but biased coefficients may provide misleading substantive conclusions, whereas evaluating coefficients in the context of theoretical expectations and measurement quality is essential for valid inference.
 
 ### Question 8: Real-World Implications
 
-**Model 1 (StressSurvey + Time) – Headline:** *“New Regression Finds Every Extra Hour of Social Media Cuts Anxiety by 2.8 Points.”*  
-Imagine a newsroom glancing only at the regression output: the Time coefficient is negative, the p-value is tiny, and the $R^2$ is strong. It takes discipline to dig deeper and realize the stress control is a bent survey proxy. Without that context, the story becomes “more scrolling, less anxiety.”
+**Model 1 (StressSurvey + Time) – Headline:** *"New Regression Finds Every Extra Hour of Social Media Cuts Anxiety by 2.8 Points."*  
+A media outlet reporting on the proxy-based regression would likely focus on the negative Time coefficient (-2.78), the extremely small p-value, and the strong $R^2$ (0.935), interpreting these as evidence that social media use reduces anxiety when stress is "controlled for." However, this interpretation overlooks a critical methodological detail: the stress control variable is a proxy measure with a non-linear relationship to true stress. Without understanding this measurement limitation, the reporting would suggest that increased social media use is associated with reduced anxiety, which contradicts the true causal relationship.
 
-**Model 2 (Stress + Time) – Headline:** *“Even at the Same Stress Level, More Social Media Raises Anxiety.”*  
-Here the data use the real stress measure, so the coefficient on Time is the modest +0.10 we expected. The same newsroom would now publish a cautionary tale about screen time harming mental health.
+**Model 2 (Stress + Time) – Headline:** *"Even at the Same Stress Level, More Social Media Raises Anxiety."*  
+When the true stress measurement is used, the Time coefficient becomes the expected positive value of +0.10, indicating that social media use is associated with increased anxiety even after controlling for stress levels. The same media outlet would now report findings consistent with concerns about the potential negative effects of social media on mental health.
 
-These competing headlines show how measurement choices—not statistical significance—drive public narratives. Parents primed to worry about social media will rally around Model 2; platform executives will amplify Model 1. Both sides can wave peer-reviewed regressions with impressive $R^2$ values, even though only one model reflects the causal truth.
+These contrasting headlines demonstrate how measurement choices, rather than statistical significance tests, fundamentally shape public interpretation of research findings. Stakeholders with pre-existing concerns about social media (e.g., parents, mental health advocates) would likely emphasize findings from Model 2, while stakeholders with incentives to minimize concerns about social media (e.g., platform executives) would likely highlight findings from Model 1. Both models can be presented as valid, peer-reviewed research with strong statistical fit, despite the fact that only one model accurately reflects the true causal relationships. This scenario illustrates how measurement quality affects not only scientific validity but also public understanding and policy debates.
 
 ### Question 9: Subset Analysis and Graphical Diagnostics
 
@@ -601,11 +601,11 @@ plt.tight_layout()
 plt.show()
 ```
 
-Focusing on `StressSurvey ≤ 6` yields
+Restricting the analysis to observations where `StressSurvey ≤ 6` produces the following model:
 
 $$\widehat{Anxiety} = 0.000 + 0.333 \times StressSurvey + 0.100 \times Time,$$
 
-with $R^2 = 1.000$. In this calmer stress regime, the survey happens to track cortisol in a neat three-to-one ratio, so the regression adjusts the slope to 0.333 (one-third of the true coefficient) and recovers the correct +0.100 for Time. The residual panels translate the statistics into pictures: the full model’s residuals bend upward (a sign of non-linearity), while the subset residuals sit quietly around zero. The Q-Q plot likewise shows the subset residuals behaving normally. For beginners, this is the recipe: slice the data where your proxy behaves almost linearly, check the residuals, and only then trust the regression story.
+with $R^2 = 1.000$. Within this lower-stress regime, the survey proxy maintains a consistent three-to-one ratio with true stress levels. The regression model adjusts the StressSurvey coefficient to 0.333, which is exactly one-third of the true coefficient value (1.0), reflecting the scaling difference between the proxy and true variable. Importantly, the Time coefficient is correctly estimated as +0.100, matching the true marginal effect. The diagnostic plots illustrate the differences between the full and subset models: the full model's residuals exhibit a systematic curved pattern, indicating violation of the linearity assumption, whereas the subset model's residuals cluster around zero with no apparent pattern. The Q-Q plot confirms that the subset model's residuals approximate a normal distribution, supporting the validity of the linear specification within this restricted range. This analysis demonstrates a methodological approach for dealing with non-linear proxies: partition the data into subsets where the proxy variable maintains approximately linear relationships with the true variable, conduct separate regressions within each subset, and evaluate model assumptions through residual diagnostics before drawing substantive conclusions.
 
-**Takeaway:** Segmenting the sample by stress severity and examining residual patterns surfaces hidden non-linearities. Rather than trusting the full-sample regression blindly, this approach pinpoints when measurement error will upend causal interpretation.
+**Takeaway:** This subset analysis demonstrates that stratifying the sample by relevant characteristics (in this case, stress severity) and examining residual patterns can reveal violations of regression assumptions that are obscured in the full sample. Rather than applying regression models to the entire dataset without validation, researchers should evaluate whether relationships are consistent across different data regimes and assess whether measurement limitations vary across the range of observed values. This approach helps identify when proxy variables can be reliably used for causal inference and when they introduce systematic bias that undermines substantive interpretation.
 
