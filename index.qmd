@@ -152,9 +152,7 @@ plt.show()
 Run a bivariate regression of Anxiety on StressSurvey. What are the estimated coefficients? How do they compare to the true relationship?
 ```{python}
 #| label: reg1-stresssurvey
-print("=" * 70)
-print("Question 1: Bivariate Regression - Anxiety ~ StressSurvey")
-print("=" * 70)
+
 print(regression_markdown(model1))
 print(f"\nR-squared: {model1.rsquared:.3f}")
 ```
@@ -206,9 +204,7 @@ The scatter plot displays Anxiety as a function of StressSurvey responses.
 Run a bivariate regression of Anxiety on Time. What are the estimated coefficients? How do they compare to the true relationship?
 ```{python}
 #| label: reg3-time
-print("=" * 70)
-print("Question 3: Bivariate Regression - Anxiety ~ Time")
-print("=" * 70)
+
 print(regression_markdown(model3))
 print(f"\nR-squared: {model3.rsquared:.3f}")
 ```
@@ -263,9 +259,7 @@ The scatter plot displays Time on social media versus Anxiety.
 Run a multiple regression of Anxiety on both **StressSurvey** and Time. What are the estimated coefficients? How do they compare to the true relationship?
 ```{python}
 #| label: reg5-multiple-stresssurvey
-print("=" * 70)
-print("Question 5: Multiple Regression - Anxiety ~ StressSurvey + Time")
-print("=" * 70)
+
 print(regression_markdown(model5))
 print(f"\nR-squared: {model5.rsquared:.3f}")
 ```
@@ -286,9 +280,7 @@ with $R^2 = 0.935$. A naive interpretation would suggest that each additional un
 Run a multiple regression of Anxiety on both **Stress** and Time. What are the estimated coefficients? How do they compare to the true relationship?
 ```{python}
 #| label: reg6-multiple-stress
-print("=" * 70)
-print("Question 6: Multiple Regression - Anxiety ~ Stress + Time")
-print("=" * 70)
+
 print(regression_markdown(model6))
 print(f"\nR-squared: {model6.rsquared:.3f}")
 ```
@@ -311,9 +303,6 @@ with $R^2 = 1.000$. Perfect $R^2$ means the line passes through every observed p
 Compare the R-squared values and coefficient interpretations between the two multiple regression models. Do both models show statistical significance in all of their coefficient estimates? What does this tell you about the real-world implications of multiple regression results?
 ```{python}
 #| label: reg7-comparison
-print("=" * 70)
-print("Question 7: Model Comparison")
-print("=" * 70)
 
 print("\nModel 1: Anxiety ~ StressSurvey + Time")
 print("-" * 70)
@@ -478,9 +467,6 @@ Reflect on this tip to avoid being misled by statistically significant results: 
 
 ```{python}
 #| label: reg9-subset
-print("=" * 70)
-print("Question 9: Subset Analysis to Avoid Misleading Significance")
-print("=" * 70)
 
 print("\nStrategy: analyze the lower-stress regime (StressSurvey ≤ 6) where the proxy is closest to linear.")
 print(f"  Original sample size: {len(observDF)}")

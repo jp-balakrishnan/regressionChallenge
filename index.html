@@ -144,7 +144,7 @@ Anxiety = \beta_0 + \beta_1 \times Stress + \beta_2 \times Time + \epsilon
 Table&nbsp;1: Observed data with known true relationships
 </figcaption>
 <div aria-describedby="tbl-observations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div class="cell-output cell-output-display" data-execution_count="32">
+<div class="cell-output cell-output-display" data-execution_count="47">
 <div>
 
 
@@ -295,10 +295,7 @@ Figure&nbsp;1: StressSurvey is monotonic but not linear in true stress
 <p>Run a bivariate regression of Anxiety on StressSurvey. What are the estimated coefficients? How do they compare to the true relationship?</p>
 <div id="reg1-stresssurvey" class="cell" data-execution_count="4">
 <div class="cell-output cell-output-stdout">
-<pre><code>======================================================================
-Question 1: Bivariate Regression - Anxiety ~ StressSurvey
-======================================================================
-|              |   Estimate |   Std. Error |      t |    p-value |   95% CI Low |   95% CI High |
+<pre><code>|              |   Estimate |   Std. Error |      t |    p-value |   95% CI Low |   95% CI High |
 |:-------------|-----------:|-------------:|-------:|-----------:|-------------:|--------------:|
 | Intercept    |     -1.524 |      nan     | nan    | nan        |       -3.051 |         0.003 |
 | StressSurvey |      1.047 |        0.096 |  10.88 |   6.68e-08 |        0.839 |         1.255 |
@@ -335,10 +332,7 @@ Figure&nbsp;2: StressSurvey vs Anxiety with fitted line
 <p>Run a bivariate regression of Anxiety on Time. What are the estimated coefficients? How do they compare to the true relationship?</p>
 <div id="reg3-time" class="cell" data-execution_count="6">
 <div class="cell-output cell-output-stdout">
-<pre><code>======================================================================
-Question 3: Bivariate Regression - Anxiety ~ Time
-======================================================================
-|           |   Estimate |   Std. Error |      t |   p-value |   95% CI Low |   95% CI High |
+<pre><code>|           |   Estimate |   Std. Error |      t |   p-value |   95% CI Low |   95% CI High |
 |:----------|-----------:|-------------:|-------:|----------:|-------------:|--------------:|
 | Intercept |     -3.68  |      nan     | nan    | nan       |       -8.504 |         1.144 |
 | Time      |      5.341 |        1.305 |   4.09 |   0.00127 |        2.522 |         8.16  |
@@ -381,10 +375,7 @@ Figure&nbsp;3: Time vs Anxiety with fitted line
 <p>Run a multiple regression of Anxiety on both <strong>StressSurvey</strong> and Time. What are the estimated coefficients? How do they compare to the true relationship?</p>
 <div id="reg5-multiple-stresssurvey" class="cell" data-execution_count="8">
 <div class="cell-output cell-output-stdout">
-<pre><code>======================================================================
-Question 5: Multiple Regression - Anxiety ~ StressSurvey + Time
-======================================================================
-|              |   Estimate |   Std. Error |      t |    p-value |   95% CI Low |   95% CI High |
+<pre><code>|              |   Estimate |   Std. Error |      t |    p-value |   95% CI Low |   95% CI High |
 |:-------------|-----------:|-------------:|-------:|-----------:|-------------:|--------------:|
 | Intercept    |      0.589 |      nan     | nan    | nan        |       -1.664 |         2.841 |
 | StressSurvey |      1.427 |        0.172 |   8.29 |   2.62e-06 |        1.052 |         1.802 |
@@ -409,10 +400,7 @@ R-squared: 0.935</code></pre>
 <p>Run a multiple regression of Anxiety on both <strong>Stress</strong> and Time. What are the estimated coefficients? How do they compare to the true relationship?</p>
 <div id="reg6-multiple-stress" class="cell" data-execution_count="9">
 <div class="cell-output cell-output-stdout">
-<pre><code>======================================================================
-Question 6: Multiple Regression - Anxiety ~ Stress + Time
-======================================================================
-|           |   Estimate |   Std. Error |             t |     p-value |   95% CI Low |   95% CI High |
+<pre><code>|           |   Estimate |   Std. Error |             t |     p-value |   95% CI Low |   95% CI High |
 |:----------|-----------:|-------------:|--------------:|------------:|-------------:|--------------:|
 | Intercept |       -0   |          nan | nan           | nan         |         -0   |           0   |
 | Stress    |        1   |            0 |   3.32219e+15 |   3.73e-181 |          1   |           1   |
@@ -439,10 +427,7 @@ R-squared: 1.000</code></pre>
 <p>Compare the R-squared values and coefficient interpretations between the two multiple regression models. Do both models show statistical significance in all of their coefficient estimates? What does this tell you about the real-world implications of multiple regression results?</p>
 <div id="reg7-comparison" class="cell" data-execution_count="10">
 <div class="cell-output cell-output-stdout">
-<pre><code>======================================================================
-Question 7: Model Comparison
-======================================================================
-
+<pre><code>
 Model 1: Anxiety ~ StressSurvey + Time
 ----------------------------------------------------------------------
   R-squared: 0.9350
@@ -540,10 +525,7 @@ When the true stress measurement is used, the Time coefficient becomes the expec
 <p>Reflect on this tip to avoid being misled by statistically significant results: splitting the sample into meaningful subsets (“statistical regimes”), and using graphical diagnostics for linearity rather than blind reliance on “canned” regressions. Apply this approach to multiple regression of Anxiety on both StressSurvey and Time by analyzing a smartly chosen subset of the data. What specific subset did you choose and why? Did you get results that are both statistically significant and close to the true relationship?</p>
 <div id="reg9-subset" class="cell" data-execution_count="13">
 <div class="cell-output cell-output-stdout">
-<pre><code>======================================================================
-Question 9: Subset Analysis to Avoid Misleading Significance
-======================================================================
-
+<pre><code>
 Strategy: analyze the lower-stress regime (StressSurvey ≤ 6) where the proxy is closest to linear.
   Original sample size: 15
   Subset sample size: 9
